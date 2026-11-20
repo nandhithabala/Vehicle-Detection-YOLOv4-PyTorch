@@ -26,18 +26,23 @@ NAMES_PATH = os.path.join(BASE_DIR, "data", "coco.names")
 import requests
 
 # --- 3. Load PyTorch Model ---
-import requests
-
-# --- 3. Load PyTorch Model ---
 @st.cache_resource
 def load_pytorch_yolo():
-    # Ensure the complete 257 MB yolov4.weights file is downloaded
+    os.makedirs(os.path.dirname(CFG_PATH), exist_ok=True)
+    
+    # Download matching official yolov4.cfg
+    cfg_url = "https://githubusercontent.com"
+    r_cfg = requests.get(cfg_url)
+    with open(CFG_PATH, "wb") as f:
+        f.write(r_cfg.content)
+
+    # Download matching official yolov4.weights (257 MB)
     if not os.path.exists(WEIGHTS_PATH) or os.path.getsize(WEIGHTS_PATH) < 250_000_000:
         if os.path.exists(WEIGHTS_PATH):
             os.remove(WEIGHTS_PATH)
-        with st.spinner("Downloading full YOLOv4 weights (257 MB)... Please wait ~20 seconds..."):
-            url = "https://github.com"
-            with requests.get(url, stream=True, allow_redirects=True) as r:
+        with st.spinner("Downloading YOLOv4 weights (257 MB)... Please wait ~20 seconds..."):
+            weights_url = "https://github.com"
+            with requests.get(weights_url, stream=True, allow_redirects=True) as r:
                 r.raise_for_status()
                 with open(WEIGHTS_PATH, "wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
@@ -46,6 +51,7 @@ def load_pytorch_yolo():
 
     model = Darknet(CFG_PATH)
     model.load_weights(WEIGHTS_PATH)
+
 
     
     use_cuda = torch.cuda.is_available()
