@@ -92,9 +92,9 @@ if uploaded_file is not None:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 
-                 frame_small = cv2.resize(frame, (640, 360))
-                 frame_rgb = cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB)
-                 st_frame.image(frame_rgb, channels="RGB")
+                frame_small = cv2.resize(frame, (640, 360))
+                frame_rgb = cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB)
+                st_frame.image(frame_rgb, channels="RGB")
 
         
     cap.release()
