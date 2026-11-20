@@ -2,6 +2,7 @@ import os
 import cv2
 import torch
 import tempfile
+import urllib.request
 import streamlit as st
 from tool.darknet2pytorch import Darknet
 from tool.torch_utils import do_detect
@@ -22,12 +23,17 @@ CFG_PATH = os.path.join(BASE_DIR, "cfg", "yolov4.cfg")
 WEIGHTS_PATH = os.path.join(BASE_DIR, "yolov4.weights")
 NAMES_PATH = os.path.join(BASE_DIR, "data", "coco.names")
 
+import urllib.request
+
 # --- 3. Load PyTorch Model ---
 @st.cache_resource
 def load_pytorch_yolo():
     if not os.path.exists(WEIGHTS_PATH):
-        st.error(f"Missing weights file! Place 'yolov4.weights' inside: {BASE_DIR}")
-        st.stop()
+        with st.spinner("Downloading YOLOv4 weights (245 MB)... Please wait ~20 seconds..."):
+            url = "https://github.com"
+            urllib.request.urlretrieve(url, WEIGHTS_PATH)
+# --- 3. Load PyTorch Model ---
+
 
     model = Darknet(CFG_PATH)
     model.load_weights(WEIGHTS_PATH)
