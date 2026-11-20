@@ -2,7 +2,7 @@ import os
 import cv2
 import torch
 import tempfile
-import urllib.request
+import requests
 import streamlit as st
 from tool.darknet2pytorch import Darknet
 from tool.torch_utils import do_detect
@@ -23,20 +23,30 @@ CFG_PATH = os.path.join(BASE_DIR, "cfg", "yolov4.cfg")
 WEIGHTS_PATH = os.path.join(BASE_DIR, "yolov4.weights")
 NAMES_PATH = os.path.join(BASE_DIR, "data", "coco.names")
 
-import urllib.request
+import requests
+
+# --- 3. Load PyTorch Model ---
+import requests
 
 # --- 3. Load PyTorch Model ---
 @st.cache_resource
 def load_pytorch_yolo():
-    if not os.path.exists(WEIGHTS_PATH):
-        with st.spinner("Downloading YOLOv4 weights (245 MB)... Please wait ~20 seconds..."):
+    # Ensure the complete 257 MB yolov4.weights file is downloaded
+    if not os.path.exists(WEIGHTS_PATH) or os.path.getsize(WEIGHTS_PATH) < 250_000_000:
+        if os.path.exists(WEIGHTS_PATH):
+            os.remove(WEIGHTS_PATH)
+        with st.spinner("Downloading full YOLOv4 weights (257 MB)... Please wait ~20 seconds..."):
             url = "https://github.com"
-            urllib.request.urlretrieve(url, WEIGHTS_PATH)
-# --- 3. Load PyTorch Model ---
-
+            with requests.get(url, stream=True, allow_redirects=True) as r:
+                r.raise_for_status()
+                with open(WEIGHTS_PATH, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
 
     model = Darknet(CFG_PATH)
     model.load_weights(WEIGHTS_PATH)
+
     
     use_cuda = torch.cuda.is_available()
     if use_cuda:
