@@ -52,14 +52,20 @@ uploaded_file = st.sidebar.file_uploader("Upload Traffic Video", type=["mp4", "a
 if uploaded_file is not None:
     tfile = tempfile.NamedTemporaryFile(delete=False)
     tfile.write(uploaded_file.read())
-    
+     
     cap = cv2.VideoCapture(tfile.name)
     st_frame = st.empty()
-    
+    frame_count = 0
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
+
+        frame_count += 1
+        if frame_count % 3 != 0:
+            continue
+
             
         height, width, _ = frame.shape
         
