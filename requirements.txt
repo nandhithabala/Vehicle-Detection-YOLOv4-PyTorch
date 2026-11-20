@@ -3,5 +3,5 @@ torchvision
 opencv-python-headless
 streamlit
 numpy
-gdown
+standard-imghdr
 
