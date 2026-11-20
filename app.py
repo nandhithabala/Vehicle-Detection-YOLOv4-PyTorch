@@ -19,38 +19,16 @@ nms_threshold = st.sidebar.slider("NMS Threshold", 0.1, 1.0, 0.4, 0.05)
 
 # Automatically locate files inside pytorch-YOLOv4-master
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CFG_PATH = os.path.join(BASE_DIR, "cfg", "yolov4.cfg")
-WEIGHTS_PATH = os.path.join(BASE_DIR, "yolov4.weights")
+CFG_PATH = os.path.join(BASE_DIR, "cfg", "yolov4-tiny.cfg")
+WEIGHTS_PATH = os.path.join(BASE_DIR, "yolov4-tiny.weights")
 NAMES_PATH = os.path.join(BASE_DIR, "data", "coco.names")
-
-import requests
 
 # --- 3. Load PyTorch Model ---
 @st.cache_resource
 def load_pytorch_yolo():
-    os.makedirs(os.path.dirname(CFG_PATH), exist_ok=True)
-    
-    # Download matching official yolov4.cfg
-    cfg_url = "https://githubusercontent.com"
-    r_cfg = requests.get(cfg_url)
-    with open(CFG_PATH, "wb") as f:
-        f.write(r_cfg.content)
-
-    # Download matching official yolov4.weights (257 MB)
-    if not os.path.exists(WEIGHTS_PATH) or os.path.getsize(WEIGHTS_PATH) < 250_000_000:
-        if os.path.exists(WEIGHTS_PATH):
-            os.remove(WEIGHTS_PATH)
-        with st.spinner("Downloading YOLOv4 weights (257 MB)... Please wait ~20 seconds..."):
-            weights_url = "https://github.com"
-            with requests.get(weights_url, stream=True, allow_redirects=True) as r:
-                r.raise_for_status()
-                with open(WEIGHTS_PATH, "wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-
     model = Darknet(CFG_PATH)
     model.load_weights(WEIGHTS_PATH)
+
 
 
     
